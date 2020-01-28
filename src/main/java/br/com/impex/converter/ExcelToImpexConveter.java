@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ExcelToImpexConveter {
     private static final String SAMPLE_EXCEL_FILE = "/home/themarkiron/Desktop/impexTestConverter.xlsx";
-    private static final String INSERT_UPDATE = " INSERT_UPDATE ";
+    private static final String INSERT_UPDATE = "INSERT_UPDATE ";
 
     public static void main(String[] args) throws IOException, InvalidFormatException {
 
@@ -32,10 +32,21 @@ public class ExcelToImpexConveter {
 
         Row rows = createSheet.createRow(0);
         rows.createCell(0).setCellValue(insertUpdate(Address.class).toString());
-
         for (int i = 0; i < fields; i++) {
-            impexInsert.append(Address.class.getDeclaredFields()[i].getName()).append(";");
-            rows.createCell(i + 1).setCellValue(Address.class.getDeclaredFields()[i].getName() + ";");
+            String field = Address.class.getDeclaredFields()[i].getName();
+            if (field.equals("code")) {
+                String replace = field + "[unique=true]";
+                impexInsert.append(replace);
+                generateCell(rows, replace, i);
+            } else if (field.equals("owner")) {
+                String replace = field + "(B2BUnit.uid)";
+                impexInsert.append(replace);
+                generateCell(rows, replace, i);
+            } else {
+                impexInsert.append(field).append(";");
+                generateCell(rows, field, i);
+            }
+
         }
 
 
@@ -85,6 +96,10 @@ public class ExcelToImpexConveter {
         fileOut.close();
 
 
+    }
+
+    private static void generateCell(Row rows, String replace, int i) {
+        rows.createCell(i + 1).setCellValue(replace + ";");
     }
 
     public static StringBuilder insertUpdate(Class cls) {
