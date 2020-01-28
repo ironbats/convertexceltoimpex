@@ -9,7 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExcelToImpexConveter {
     private static final String SAMPLE_EXCEL_FILE = "/home/themarkiron/Desktop/impexTestConverter.xlsx";
@@ -28,7 +28,6 @@ public class ExcelToImpexConveter {
         StringBuilder impexInsert = new StringBuilder();
         impexInsert.append(insertUpdate(Address.class));
 
-        List<Address> addresses = new ArrayList<>();
 
         Sheet createSheet = workbook.createSheet("Address");
 
@@ -40,29 +39,47 @@ public class ExcelToImpexConveter {
              rows.createCell(i+1).setCellValue(Address.class.getDeclaredFields()[i].getName() +  ";");
         }
 
-        // Write the output to a file
-        FileOutputStream fileOut = new FileOutputStream("/home/themarkiron/Desktop/poi-generated-file2.xlsx");
-        workbook.write(fileOut);
-        fileOut.close();
-
-
 
         StringBuilder linesImpex = new StringBuilder();
 
+        var ref = new Object() {
+            Row linha = null;
+        };
+
+        var ref2 = new Object(){
+          int count = 1;
+        };
+
+        var ref3 = new Object() {
+            int count2 = 1;
+        };
+
+
         sheet.forEach(row -> {
+            ref.linha = createSheet.createRow(ref3.count2++);
+
             row.forEach(cell -> {
                 String cellValue = dataFormatter.formatCellValue(cell);
                 linesImpex.append(cellValue).append(";");
-
+                ref.linha.createCell(ref2.count++).setCellValue(cellValue);
             });
+
             impexConverter.add(linesImpex.toString());
             linesImpex.delete(0,linesImpex.length());
+            ref2.count = 1;
+
         });
 
         for(String string : impexConverter){
             impexInsert.append("\n").append(string);
         }
         System.out.println(impexInsert);
+
+        // Write the output to a file
+        FileOutputStream fileOut = new FileOutputStream("/home/themarkiron/Desktop/poi-generated-file2.xlsx");
+        workbook.write(fileOut);
+        fileOut.close();
+
 
     }
 

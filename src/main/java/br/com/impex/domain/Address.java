@@ -7,6 +7,14 @@ public class Address {
 
     private Integer code;
     private Integer owner;
-    private String addressName;
-    private String province;
+    private String streetname;
+    private String streetnumber;
+    private String town;
+    private String postalcode;
+    private String company;
+    private boolean active;
+    private boolean contactAddress;
+    private  boolean shippingAddress;
+    private boolean unloadingAddress;
+    private boolean billingAddress;
 }
